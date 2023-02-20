@@ -1,7 +1,7 @@
 #!/bin/bash
 # edit this vars
 export UNIQ="uniq_ident"
-ex[prt C="commen on user"
+export C="commen on user"
 # dont touch this vars
 export HTML_HOME=/home/postgres/cruser_v2/script/env/html;
 export HTML_HEAD=$HTML_HOME/html_head.txt;
