@@ -1,0 +1,22 @@
+#!/bin/bash
+# edit this vars
+export UNIQ="uniq_ident"
+ex[prt C="commen on user"
+# dont touch this vars
+export HTML_HOME=/home/postgres/cruser_v2/script/env/html;
+export HTML_HEAD=$HTML_HOME/html_head.txt;
+export HTML_TAIL=$HTML_HOME/html_tail.txt;
+export HTML_SS=$(cat $HTML_HOME/html_ss.txt);
+export HTML_SE=$(cat $HTML_HOME/html_se.txt);
+export HTML_DIR=/home/postgres/cruser_V2/done/result_work/$UNIQ/html;
+export PASS_DIR=/home/postgres/cruser_V2/done/result_work/$UNIQ/usr;
+export HOST_DIR=home/postgres/cruser_V2/done/result_work/$UNIQ/host;
+# main vars
+export HOST_VARS=/home/postgres/cruser_v2/script/env/host.txt;
+export USER_HOME=/home/postgres/cruser_v2/script/env/usr.txt;
+# for check host access
+export CR_LOG="/home/postgres/cruser_v2/log";
+export SSH_LIST="$CR_LOG/$UNIQ/ssh_list.txt";
+export PG_LIST="$CR_LOG/$UNIQ/pg_list.txt";
+export SSH_PR="$CR_LOG/$UNIQ/ssh_pr.txt";
+export PG_PR="$CR_LOG/$UNIQ/pg_pr.txt";
