@@ -1,0 +1,34 @@
+patroni_user: "postgres"
+patroni_group: "postgres"
+patroni_port: 8008
+patroni_postgres_port: 5432
+patroni_log_dir: "/var/lib/patroni"
+patroni_config_dir: "/etc/patroni"
+patroni_config_file: "config.yml"
+patroni_config_path: "{{ patroni_config_dir }}/{{ patroni_config_file }}"
+patroni_pg_base_dir: "/var/lib/postgresql"
+patroni_data_dir: "{{ patroni_pg_base_dir }}/patroni/{{ postgres_version }}/main"
+patroni_bootstrap_pg_hba_defaults:
+  - host replication postgres ::1/128 md5
+  - host replication postgres 127.0.0.1/8 md5
+  - host replication postgres 10.10.128.0/24 md5
+  - host postgres postgres 10.10.128.0/24 md5
+  - local all all peer
+  - local replication all peer
+patroni_bootstrap_pg_hba:
+  - host loaddb tester 10.10.128.0/24 md5
+  - host loaddb all 10.10.128.0/24 ldap ldapserver=ldap.structure.pik-broker.ru ldapbasedn="cn=users,cn=accounts,dc=pik-broker,dc=ru" ldapbinddn="uid=dbreader,cn=users,cn=accounts,dc=pik-broker,dc=ru" ldapbindpasswd="ge3Ahn5mongahm" ldapsearchfilter="(&(uid=$username)(memberOf=cn=db,cn=groups,cn=accounts,dc=pik-broker,dc=ru))"
+patroni_postgres_pg_hba_defaults:
+  - host replication postgres ::1/128 md5
+  - host replication postgres 127.0.0.1/8 md5
+  - host replication postgres 10.10.128.0/24 md5
+  - host postgres postgres 10.10.128.0/24 md5
+  - local all all peer
+  - local replication all peer
+patroni_postgres_pg_hba:
+  - host
+  - host loaddb tester 10.10.128.0/24 md5
+  - host loaddb all 10.10.128.0/24 ldap ldapserver=ldap.structure.pik-broker.ru ldapbasedn="cn=users,cn=accounts,dc=pik-broker,dc=ru" ldapbinddn="uid=dbreader,cn=users,cn=accounts,dc=pik-broker,dc=ru" ldapbindpasswd="ge3Ahn5mongahm" ldapsearchfilter="(&(uid=$username)(memberOf=cn=db,cn=groups,cn=accounts,dc=pik-broker,dc=ru))"
+
+pgbackrest_config_dir: "/etc/pgbackrest"
+pgbackrest_user: "pgbackrest"

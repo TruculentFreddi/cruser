@@ -1,0 +1,52 @@
+Certificate:
+    Data:
+        Version: 1 (0x0)
+        Serial Number:
+            53:a7:69:a0:2e:c0:cc:ed:2f:51:1f:94:51:9e:29:4e:17:b3:7d:8c
+        Signature Algorithm: NULL
+        Issuer: CN = db
+        Validity
+            Not Before: Mar  4 13:12:09 2021 GMT
+            Not After : Jul  5 13:12:09 3020 GMT
+        Subject: CN = db
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (2048 bit)
+                Modulus:
+                    00:af:4c:db:03:b3:1c:bc:b6:dd:34:89:8b:18:33:
+                    71:18:77:c5:b1:d7:09:58:55:f8:c0:b9:d6:7c:1d:
+                    ed:33:02:2e:7f:7b:a1:f6:44:7e:c4:21:95:9a:75:
+                    a0:59:44:6e:61:61:e3:78:f6:7a:86:01:c8:9d:1d:
+                    29:87:7f:f6:fc:ea:c4:31:7f:0c:99:ed:7b:e6:08:
+                    52:7f:1b:cb:18:60:c3:2c:81:c3:4a:2b:26:83:86:
+                    6d:49:1b:07:ba:94:e4:73:95:50:c3:65:b2:67:c0:
+                    da:ff:60:a5:0b:20:07:c3:77:fc:a2:95:7f:bc:59:
+                    f6:bb:fb:05:f1:37:76:15:88:9a:4b:6a:01:42:37:
+                    8f:49:bb:c5:92:87:88:66:12:04:be:09:c8:0e:67:
+                    c2:80:9b:f8:a6:54:b2:04:ca:61:e4:4d:10:4e:33:
+                    af:55:84:74:d7:38:b1:76:95:1c:e5:e8:0b:ba:86:
+                    d4:38:3d:83:c2:e9:61:31:59:83:bb:bd:63:d4:5c:
+                    2c:1d:74:9a:02:37:98:de:1b:67:fe:d9:e4:aa:28:
+                    1e:fb:39:4f:22:91:c9:25:88:e4:70:d4:95:de:90:
+                    4c:f1:5b:bb:9f:4d:d6:2a:a6:05:61:6e:56:c1:87:
+                    f2:20:91:40:43:db:14:99:ed:7e:29:5f:64:ba:d8:
+                    a9:83
+                Exponent: 65537 (0x10001)
+    Signature Algorithm: NULL
+-----BEGIN CERTIFICATE-----
+MIICozCCAYsCFFw9fy+gA7xqoh45qPccvS2dG2IeMA0GCSqGSIb3DQEBCwUAMA0x
+CzAJBgNVBAMMAmRiMCAXDTIxMDMwNDEzMTIwOVoYDzMwMjAwNzA1MTMxMjA5WjAN
+MQswCQYDVQQDDAJkYjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK9M
+2wOzHLy23TSJixgzcRh3xbHXCVhV+MC51nwd7TMCLn97ofZEfsQhlZp1oFlEbmFh
+43j2eoYByJ0dKYd/9vzqxDF/DJnte+YIUn8byxhgwyyBw0orJoOGbUkbB7qU5HOV
+UMNlsmfA2v9gpQsgB8N3/KKVf7xZ9rv7BfE3dhWImktqAUI3j0m7xZKHiGYSBL4J
+yA5nwoCb+KZUsgTKYeRNEE4zr1WEdNc4sXaVHOXoC7qG1Dg9g8LpYTFZg7u9Y9Rc
+LB10mgI3mN4bZ/7Z5KooHvs5TyKRySWI5HDUld6QTPFbu59N1iqmBWFuVsGH8iCR
+QEPbFJntfilfZLrYqYMCAwEAATANBgkqhkiG9w0BAQsFAAOCAQEAJSPUkRX3vhhT
+mmIJOxzZWJNCMeTwNF69kkblIC1LpHPC8Db2rQlIKmz5VUZAGuAFgHsXQW9RhDxE
+tt8umFHVG7FdOjyJrUHXkHRm7Jlfx1iAdHOs9rUzkbeWtSW0uIY/P/Vge/7Z4Qj0
+sVlngKERMMBFwNBA2YgaCQoySaFr2hJEqQpNHNRuO8palJN4hgMCBEiXPJWrCZXl
+fdNXj8vz0J15I6wAqQqOMybL+Ci2/RPqY2KpIXFGIOSRrt9+lIkWb0P6f4k7mpJG
+U1Dep7Yzp4t9OTw4KVGgsMYRr18g70h4sqWeHTevCKPAFp1rI3rWV3bTm/10CJ1a
+3QiBCcZ4QQ==
+-----END CERTIFICATE-----

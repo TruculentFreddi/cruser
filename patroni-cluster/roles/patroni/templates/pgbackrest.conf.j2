@@ -1,0 +1,10 @@
+[main]
+pg1-path={{ patroni_data_dir }}
+pg1-port={{ patroni_postgres_port }}
+pg1-database=loaddb
+
+[global]
+log-level-file=detail
+repo1-host={{ hostvars['hp-3']['ansible_default_ipv4']['address'] }}
+repo1-host-user={{ pgbackrest_user }}
+archive-copy=y

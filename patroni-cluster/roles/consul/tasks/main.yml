@@ -1,0 +1,70 @@
+- name: Install consul
+  apt: name={{ item }} state=latest
+#  tags: patroni
+  with_items:
+    - consul
+  tags: consul
+
+- name: Create directory consul 
+  file:
+    path: "{{ consul_config_dir }}"
+    state: directory
+  tags: consul
+
+- name: Get token of consul
+  command: consul keygen
+  register: tmp_token
+  when: inventory_hostname in groups['consul_master']
+  tags:
+    - consul
+    - init_token
+
+- set_fact:
+    secret_token: "{{ tmp_token.stdout }}"
+  tags:
+    - consul
+    - init_token
+  when: inventory_hostname in groups['consul_master']
+
+#- debug: var=hostvars['hp-1']['secret_token']
+#  with_items: "{{ groups['consul'] }}"
+#  tags:
+  #    - consul
+  #    - init_token
+
+- name: Put consul configuration
+  template: src=consul.config.json.j2 dest={{ consul_config_dir }}/config.json backup=yes
+  with_items: "{{ groups['consul'] }}"
+  tags:
+    - consul
+    - init_token
+
+- name: Put log configuration
+  template: src=consul.00-log_level.hcl.j2 dest={{ consul_config_dir }}/00-log_level.hcl backup=yes
+  tags: consul
+
+- name: Put consul.service
+  template: src=consul.service.j2 dest=/etc/systemd/system/consul.service backup=yes
+  tags: consul
+
+- name: Update folder owner
+  file:
+    path: "{{ item }}"
+    owner: "{{ consul_user }}"
+    group: "{{ consul_group }}"
+    state: directory
+    recurse: "yes"
+  with_items:
+    - "{{ consul_config_dir }}"
+    - "{{ consul_data_dir }}"
+  tags:
+    - deploy
+
+
+- name: Reload daemon definitions
+  command: /bin/systemctl daemon-reload
+  tags: consul
+
+- name: Restart consul
+  service: name=consul state=restarted enabled=yes
+  tags: consul

@@ -1,0 +1,66 @@
+#jinja2: lstrip_blocks: "True"
+{% if inventory_hostname in groups['consul_slaves'] %}
+{
+    "datacenter": "pikdata",
+    "data_dir": "{{ consul_data_dir }}",
+    "domain": "consul",
+    "enable_script_checks": true,
+    "dns_config": {
+        "enable_truncate": true,
+        "only_passing": true
+    },
+    "enable_syslog": true,
+    "encrypt": "{{ consul_token }}",
+    "leave_on_terminate": true,
+    "log_level": "debug",
+    "rejoin_after_leave": true,
+    "retry_join": [
+        {% for host in groups['consul_master'] %}
+        "{{ hostvars[host]['ansible_default_ipv4']['address'] }}"{% if not loop.last %},{% endif %}
+
+        {% endfor %}
+    ],
+    "server": false,
+    "start_join": [
+        {% for host in groups['consul_master'] %}
+        "{{ hostvars[host]['ansible_default_ipv4']['address'] }}"{% if not loop.last %},{% endif %}
+
+        {% endfor %}
+    ]
+}
+{% endif %}
+{% if inventory_hostname in groups['consul_master'] %}
+{
+    "advertise_addr": "{{ ansible_default_ipv4.address }}",
+    "bind_addr": "{{ ansible_default_ipv4.address }}",
+    "bootstrap_expect": {{ consul_bootstrap_expect }},
+    "client_addr": "0.0.0.0",
+    "datacenter": "pikdata",
+    "data_dir": "{{ consul_data_dir }}",
+    "domain": "consul",
+    "enable_script_checks": true,
+    "dns_config": {
+        "enable_truncate": true,
+        "only_passing": true
+    },
+    "enable_syslog": true,
+    "encrypt": "{{ consul_token }}",
+    "leave_on_terminate": true,
+    "log_level": "debug",
+    "rejoin_after_leave": true,
+    "retry_join": [
+        {% for host in groups['consul_master'] %}
+        "{{ hostvars[host]['ansible_default_ipv4']['address'] }}"{% if not loop.last %},{% endif %}
+
+        {% endfor %}
+    ],
+    "server": true,
+    "start_join": [
+        {% for host in groups['consul_master'] %}
+        "{{ hostvars[host]['ansible_default_ipv4']['address'] }}"{% if not loop.last %},{% endif %}
+
+        {% endfor %}
+    ],
+    "ui": true
+}
+{% endif %}

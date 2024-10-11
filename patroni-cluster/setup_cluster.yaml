@@ -1,0 +1,65 @@
+- hosts: setup
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - vars.yml
+  roles:
+    - common
+  tags:
+    - common
+
+- hosts: consul
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - vars.yml
+    - vault
+  roles:
+    - consul
+  tags:
+    - consul
+
+- hosts: patroni
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - vars.yml
+    - vault
+  roles:
+    - patroni
+  tags:
+    - patroni
+    - pgbackrest-server
+
+#- hosts: pg_backup
+#  become: yes
+#  gather_facts: yes
+#  vars_files:
+#    - vars.yml
+#    - vault
+#  roles:
+#    - pgbackrest
+#  tags:
+#    - pgbackrest-server
+
+- hosts: haproxy
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - vars.yml
+  roles:
+    - haproxy
+  tags:
+    - keepalived
+    - haproxy
+
+- hosts: ldap2pg
+  become: yes
+  vars_files:
+    - vars.yml
+  roles:
+    - role: ldap2pg
+
+      ldap2pg_postgres_dsn: "postgres://ldap2pg:ge3Ahn5mongahm@{{ virtual_ipaddress }}:5432/loaddb"
+  tags:
+    - ldap2pg

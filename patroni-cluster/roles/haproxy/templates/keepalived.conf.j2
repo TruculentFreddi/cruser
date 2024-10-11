@@ -1,0 +1,50 @@
+{% if inventory_hostname in groups['haproxy_master'] %}
+vrrp_instance {{ patroni_scope }} {
+    state MASTER
+    interface {{ ansible_default_ipv4.interface }}
+    virtual_router_id 11
+    priority 110
+    advert_int 2
+
+    authentication {
+        auth_type AH
+        auth_pass bropiker
+        }
+
+    unicast_peer {
+        {% for host in groups['haproxy_slaves'] %}
+        {{ hostvars[host]['ansible_default_ipv4']['address'] }}
+        {% endfor %}
+        }
+
+    virtual_ipaddress {
+        {{ virtual_ipaddress }} dev {{ ansible_default_ipv4.interface }} label {{ ansible_default_ipv4.interface }}:vip
+    }
+}
+{% endif %}
+
+{% if inventory_hostname in groups['haproxy_slaves'] %}
+vrrp_instance {{ patroni_scope }} {
+    state BACKUP
+    interface {{ ansible_default_ipv4.interface }}
+    virtual_router_id 12
+    priority 101
+    advert_int 2
+
+    authentication {
+        auth_type AH
+        auth_pass bropiker
+        }
+
+    unicast_peer {
+        {% for host in groups['haproxy_master'] %}
+        {{ hostvars[host]['ansible_default_ipv4']['address'] }}
+        {% endfor %}
+        }
+
+
+    virtual_ipaddress {
+        {{ virtual_ipaddress }} dev {{ ansible_default_ipv4.interface }} label {{ ansible_default_ipv4.interface }}:vip
+    }
+}
+{% endif %}

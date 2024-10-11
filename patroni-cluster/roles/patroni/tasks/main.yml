@@ -1,0 +1,129 @@
+---
+- name: Gather facts from another hosts (regardless of limit or tags)
+  setup:
+  delegate_to: "{{ item }}"
+  delegate_facts: True
+  when: hostvars[item]['ansible_default_ipv4'] is not defined
+  with_items: "{{ groups['pg_backup'] }}"
+  tags:
+    - patroni
+    - pgbackrest
+
+- name: Add an Apt signing key
+  ansible.builtin.apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+  tags: patroni
+
+- apt_repository:
+    repo: deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main
+    state: present
+  tags: patroni
+
+- name: Install patroni and dependency
+  apt: name={{ item }} state=latest
+  with_items:
+    - pgbackrest
+    - postgresql-{{ postgres_version }}
+    - postgresql-client-{{ postgres_version }}
+    - postgresql-contrib-{{ postgres_version }}
+    - patroni
+    - postgresql-{{ postgres_version }}-postgis-3
+    - python3-pip
+    - python3-dev
+    - python3-setuptools
+    - python3-psycopg2
+    - python3-consul
+    - python3-setuptools
+  tags: patroni
+
+- name: Stop postgresql
+  service: name=postgresql state=stopped enabled=no
+  tags: patroni
+
+- name: Delete postgres main directory
+  file:
+    state: absent
+    path: "{{ patroni_pg_base_dir }}/{{ postgres_version }}/main"
+  tags: patroni
+
+- name: Creates directory ssl
+  file:
+    path: "{{ patroni_pg_base_dir }}/keys"
+    state: directory
+    owner: "{{ patroni_user }}"
+    group: "{{ patroni_group }}"
+    mode: 0750
+  tags: patroni
+
+- name: copy ssl certificate
+  copy:
+    src: ssl/{{ item }}
+    dest: "{{ patroni_pg_base_dir }}/keys/"
+    owner: "{{ patroni_user }}"
+    group: "{{ patroni_group }}"
+    mode: 0600
+  with_items:
+    - server.crt
+    - server.key
+  tags: patroni
+
+- name: create patroni log dir
+  file:
+    state: directory
+    path: "{{ patroni_log_dir }}"
+    owner: "{{ patroni_user }}"
+    group: "{{ patroni_group }}"
+  tags:
+    - patroni
+
+- name: Creates directory patroni
+  file:
+    path: "{{ patroni_data_dir }}"
+    state: directory
+    owner: "{{ patroni_user }}"
+    group: "{{ patroni_group }}"
+    mode: 0700
+  tags: patroni
+
+- name: Generate patroni.service
+  template:
+    src: patroni.service.j2
+    dest: /etc/systemd/system/patroni.service
+    backup: yes
+  notify:
+    - Reload daemon definitions
+  tags: patroni
+
+- name: Put patroni configuration
+  template:
+    src: patroni.config.yml.j2
+    dest: "{{ patroni_config_path }}"
+    backup: yes
+    owner: "{{ patroni_user }}"
+    group: "{{ patroni_group }}"
+  notify:
+    - Restart patroni
+  tags: patroni
+
+- name: Put pgpass configuration
+  template:
+    src: pgpass.j2
+    dest: /tmp/pgpass
+    backup: yes
+    owner: "{{ patroni_user }}"
+    group: "{{ patroni_group }}"
+    mode: 0600
+  tags: patroni
+
+- name: Update profile.d
+  copy:
+    dest: /etc/profile.d/patroni.sh
+    content: "export PATRONICTL_CONFIG_FILE={{ patroni_config_path }}"
+  tags:
+    - patroni
+
+- name: Setup pgBackRest
+  include_tasks: pgbackrest.yml
+  tags:
+    - pgbackrest-server

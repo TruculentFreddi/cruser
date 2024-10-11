@@ -1,0 +1,51 @@
+{% if inventory_hostname in groups['consul_master'] %}
+[Unit]
+Description=Consul Service Discovery Agent
+Documentation=https://www.consul.io/
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+User=consul
+Group=consul
+ExecStart=/usr/bin/consul agent -server -ui \
+        -data-dir={{ consul_data_dir }} \
+        -node={{ ansible_hostname }} \
+        -config-dir={{ consul_config_dir }} \
+        -disable-keyring-file
+
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGINT
+TimeoutStopSec=5
+Restart=on-failure
+SyslogIdentifier=consul
+
+[Install]
+WantedBy=multi-user.target
+{% endif %}
+
+{% if inventory_hostname in groups['consul_slaves'] %}
+[Unit]
+Description=Consul Service Discovery Agent
+Documentation=https://www.consul.io/
+After=network-online.target
+Wants=network-online.target
+[Service]
+Type=simple
+User=consul
+Group=consul
+ExecStart=/usr/bin/consul agent -ui \
+        -data-dir={{ consul_data_dir }} \
+        -node={{ ansible_hostname }} \
+        -config-dir={{ consul_config_dir }} \
+        -disable-keyring-file
+
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGINT
+TimeoutStopSec=5
+Restart=on-failure
+SyslogIdentifier=consul
+
+[Install]
+WantedBy=multi-user.target
+{% endif %}
