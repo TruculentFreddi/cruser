@@ -1,0 +1,35 @@
+- name: Install packages
+  apt:
+    name: "{{ item }}"
+    update_cache: yes
+  with_items:
+    - libsasl2-dev
+    - libldap2-dev
+    - libssl-dev
+    - python3-pip
+  tags:
+    - ldap2pg
+
+- name: Install python packages
+  pip:
+    name: "{{ item }}"
+  with_items:
+    - ldap2pg
+    - psycopg2-binary
+  tags:
+    - ldap2pg
+
+- name: Make target folder
+  file:
+    state: directory
+    path: "{{ ldap2pg_config_dir }}"
+  tags:
+    - ldap2pg
+
+- name: Generate ldap2pg config
+  template:
+    src: ldap2pg.yml.j2
+    dest: "{{ ldap2pg_config_path }}"
+    mode: "0600"
+  tags:
+    - ldap2pg

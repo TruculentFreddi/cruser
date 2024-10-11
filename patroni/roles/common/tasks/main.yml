@@ -1,0 +1,37 @@
+---
+- name: Test hosts list
+  debug:
+    msg: "{{ hostvars[inventory_hostname]['ansible_default_ipv4']['address'] }}"
+  tags: common
+
+# TODO: может исключить?
+#- name: Update hostnames
+#  hostname:
+#    name: "{{ new_hostname }}"
+#  tags: common
+
+- name: Install software
+  apt: name={{ item }} state=latest
+  with_items:
+   - ntpdate
+   - bzip2
+   - zip
+   - unzip
+   - vim
+   - atop
+   - wget
+   - mytop
+   - screen
+   - net-tools
+   - rsync
+   - tcpdump
+   - mtr
+   - git
+   - gcc
+   - aptitude
+   - bash-completion
+  tags: common
+
+- name: Update hosts
+  template: src=hostsFile.j2 dest=/etc/hosts owner=root group=root backup=yes
+  tags: common

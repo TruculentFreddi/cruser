@@ -1,0 +1,93 @@
+ldap2pg_ldap_uri: "ldap://ldap.structure.pik-broker.ru:389"
+ldap2pg_ldap_binddn: "uid=ldap2pg,cn=users,cn=accounts,dc=pik-broker,dc=ru"
+ldap2pg_ldap_password: "ge3Ahn5mongahm"
+
+ldap2pg_postgres_dsn: postgres://ldap2pg:qwerty@localhost:5432/test
+
+ldap2pg_config_dir: "/opt/ldap2pg"
+ldap2pg_config_file: "ldap2pg.yml"
+ldap2pg_config_path: "{{ ldap2pg_config_dir }}/{{ ldap2pg_config_file }}"
+
+ldap2pg_privileges: >
+  login:
+    - __connect__
+ldap2pg_sync_map: >
+
+  - description: "Setup static roles and grants."
+    roles:
+      - names:
+        - ldap_roles
+        - pikdata_reader
+        options: NOLOGIN
+      - name: pikdata_writers
+        # Grant reading to pikdata_writers
+        parent: pikdata_reader
+        options: NOLOGIN
+      - name: owners
+        # Grant read/write to owners
+        parent: pikdata_writers
+        options: NOLOGIN
+      - name: login
+        parent: ldap_roles
+        options: NOLOGIN
+
+    grant:
+      - role: login
+        privilege: login
+        schemas: __all__
+      - role: pikdata_reader
+        privilege: ro
+        schemas: __all__
+      - role: pikdata_writers
+        privilege: rw
+        schema: __all__
+      - role: owners
+        privilege: ddl
+        schema: __all__
+
+  - description: "Query LDAP to create superusers."
+    ldap:
+      base: cn=uid,cn=groups,cn=accounts,dc=pik-broker,dc=ru
+    role:
+      # LDAP attribute member is a Distinguished Name. Use CN component of the
+      # member value.
+      name: '{member.uid}'
+      options: LOGIN SUPERUSER
+      parent:
+        - ldap_roles
+        - owners
+      comment: "From LDAP group {dn}"
+
+  - description: "Query LDAP to create pikdata_writers."
+    ldap:
+      base: cn=research_db_ro,cn=groups,cn=accounts,dc=pik-broker,dc=ru
+    role:
+      name: '{member.uid}'
+      options: LOGIN
+      parent:
+        - ldap_roles
+        - pikdata_writers
+      comment: 'From LDAP group {dn}'
+
+  - description: "Query LDAP to create readers."
+    ldap:
+      base: cn=research_db_ro,cn=groups,cn=accounts,dc=pik-broker,dc=ru
+    role:
+      name: '{member.uid}'
+      options: LOGIN
+      parent:
+        - ldap_roles
+        - pikdata_reader
+      comment: 'From LDAP group {dn}'
+
+  - description: "Query LDAP to create users with login privileges."
+    ldap:
+      base: cn=research_db_login,cn=groups,cn=accounts,dc=pik-broker,dc=ru
+    role:
+      name: '{member.uid}'
+      options: LOGIN
+      parent:
+        - ldap_roles
+        - login
+      comment: 'From LDAP group {dn}'
+

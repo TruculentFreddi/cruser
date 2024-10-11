@@ -1,0 +1,17 @@
+[main]
+{% for host in groups['patroni'] %}
+pg{{ loop.index }}-path={{ patroni_data_dir }}
+pg{{ loop.index }}-port={{ patroni_postgres_port }}
+pg{{ loop.index }}-host={{ hostvars[host]['ansible_default_ipv4']['address'] }}
+pg{{ loop.index }}-database=loaddb
+
+{% endfor %}
+
+[global]
+process-max=4
+repo1-path=/backup/pgbackrest
+repo1-retention-full=2
+repo1-retention-diff=3
+repo1-retention-history=3
+start-fast=y
+archive-copy=y

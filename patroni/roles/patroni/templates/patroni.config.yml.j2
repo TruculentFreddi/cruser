@@ -1,0 +1,90 @@
+#jinja2: lstrip_blocks: "True"
+name: postgres-{{ ansible_hostname }}
+scope:  {{ patroni_scope }}
+namespace: {{ patroni_namespace}}
+
+log:
+  dir: {{ patroni_log_dir }}
+  level: INFO
+
+consul:
+  host: localhost:8500
+
+restapi:
+  listen: {{ ansible_default_ipv4.address }}:{{ patroni_port }}
+  connect_address: {{ ansible_default_ipv4.address }}:{{ patroni_port }}
+
+bootstrap:
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    maximum_lag_on_failover: 1048576  
+    postgresql:
+      use_pg_rewind: true
+      use_slots: true
+      parameters:
+        max_connections: 300
+        effective_cache_size: {{ memory_effective_cache }}    # 2/3 доступной памяти
+        shared_buffers: {{ memory_shared_buffers }}           # 1/2 доступной памяти
+        work_mem: 20MB
+        maintenance_work_mem: 64MB
+        bgwriter_lru_maxpages: 1000
+        bgwriter_lru_multiplier: 10.0
+        bgwriter_flush_after: 0
+        random_page_cost: 1.0
+        seq_page_cost: 1.0
+        effective_io_concurrency: 256
+        checkpoint_timeout: 30min
+        checkpoint_completion_target: 0.9
+        autovacuum_vacuum_scale_factor: 0.4
+        wal_level: replica
+        hot_standby: "on"
+        wal_keep_segments: 200
+        max_wal_senders: 10
+        max_replication_slots: 8
+
+        ssl: 'on'
+        ssl_cert_file: '{{ patroni_pg_base_dir }}/keys/server.crt'
+        ssl_key_file: '{{ patroni_pg_base_dir }}/keys/server.key'
+        ssl_ciphers: 'HIGH:+3DES:!aNULL'
+        ssl_prefer_server_ciphers: 'on'
+
+    pg_hba:
+    {% for item in patroni_bootstrap_pg_hba_defaults %}
+    - {{ item }}
+    {% endfor %}
+    {% for host in groups['patroni'] %}
+    - host replication replication {{ hostvars[host]['ansible_default_ipv4']['address'] }}/32 trust
+    {% endfor %}
+    {% for item in patroni_bootstrap_pg_hba %}
+    - {{ item }}
+    {% endfor %}
+
+postgresql:
+  parameters:
+      archive_mode: "on"
+      archive_command: 'pgbackrest --stanza=main archive-push %p'
+
+  listen: {{ ansible_default_ipv4.address }}:{{ patroni_postgres_port }}
+  connect_address: {{ ansible_default_ipv4.address }}:{{ patroni_postgres_port }}
+  data_dir: {{ patroni_pg_base_dir }}/patroni/{{ postgres_version }}/main
+  bin_dir: /usr/lib/postgresql/{{ postgres_version }}/bin
+  hba_file: /etc/postgresql/patroni/{{ postgres_version }}/main/pg_hba.conf
+  pg_hba:
+  {% for item in patroni_bootstrap_pg_hba_defaults %}
+  - {{ item }}
+  {% endfor %}
+  {% for host in groups['patroni'] %}
+  - host replication replication {{ hostvars[host]['ansible_default_ipv4']['address'] }}/32 trust
+  {% endfor %}
+  {% for item in patroni_bootstrap_pg_hba %}
+  - {{ item }}
+  {% endfor %}
+
+  pgpass: /tmp/pgpass
+  replication:
+    username: replication
+    password: {{ patroni_replicator_password }}
+  superuser:
+    username: postgres
+    password: {{ patroni_postgres_password }}

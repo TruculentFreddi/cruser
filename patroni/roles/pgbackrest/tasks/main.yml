@@ -1,0 +1,82 @@
+- name: Include vars of patroni role
+  include_vars:
+    file: roles/patroni/defaults/main.yml
+  tags: pgbackrest-server
+
+- name: Gather facts from another hosts (regardless of limit or tags)
+  setup:
+  delegate_to: "{{ item }}"
+  delegate_facts: True
+  when: hostvars[item]['ansible_default_ipv4'] is not defined
+  with_items: "{{ groups['patroni'] }}"
+  tags: pgbackrest-server
+
+- name: Add an Apt signing key
+  ansible.builtin.apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+  tags: pgbackrest-server
+
+- apt_repository:
+    repo: deb http://apt.postgresql.org/pub/repos/apt/ focal-pgdg main
+    state: present
+  tags: pgbackrest-server
+
+- name: Install patroni and dependency
+  apt: name={{ item }} state=latest
+  with_items:
+    - pgbackrest
+  tags: pgbackrest-server
+
+- name: backup fodler
+  file:
+    path: "/backup/pgbackrest"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: 0700
+  tags: pgbackrest-server
+
+- name: create pgBackRest folder
+  file:
+    path: "{{ pgbackrest_config_dir }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: 0700
+  tags: pgbackrest-server
+
+- name: Configure pgBackRest
+  template:
+    src: pgbackrest.conf.j2
+    dest: "{{ pgbackrest_config_dir }}/pgbackrest.conf"
+    backup: yes
+  tags:
+    - pgbackrest-server
+
+- name: Create user for pgBackRest
+  ansible.builtin.user:
+    name: "{{ pgbackrest_user}}"
+    shell: /bin/bash
+    generate_ssh_key: yes
+    ssh_key_bits: 2048
+    ssh_key_file: .ssh/id_rsa
+  register: result
+  tags:
+    - pgbackrest-server
+
+- name: Extract public key
+  set_fact:
+    public_key: "{{ result.ssh_public_key }}"
+  tags:
+    - pgbackrest-server
+
+- debug:
+    msg: "{{ public_key }}"
+  tags:
+    - pgbackrest-server
+
+- name: Save public key to local
+  local_action: copy content="{{ public_key }}" dest="{{ pgbackrest_user}}_id_rsa.pub"
+  tags:
+    - pgbackrest-server

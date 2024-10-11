@@ -1,0 +1,16 @@
+postgres_version: 13
+
+virtual_ipaddress: 10.10.128.156
+
+# patroni configs
+patroni_scope: pikdata
+patroni_namespace: '/cluster-pikdata/'
+
+memory_effective_cache: 2300MB
+memory_shared_buffers: 2GB
+
+patroni_replicator_password: "{{ vault_patroni_replicator_password }}"
+patroni_postgres_password: "{{ vault_patroni_postgres_password }}"
+
+# consul token
+consul_token: "{{ hostvars['hp-1']['secret_token'] }}"
